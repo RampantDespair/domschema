@@ -2,31 +2,32 @@ import type { Htmlparser2TreeAdapterMap } from "parse5-htmlparser2-tree-adapter"
 
 import { adapter } from "parse5-htmlparser2-tree-adapter";
 
-import type { SanitizerOptions, SanitizerState } from "../types/sanitizer";
+import type { SchemaOptions, SchemaState } from "../types/schema";
 
+import { enforceAttributes } from "./enforcers/attributes";
+import { enforceTag } from "./enforcers/tags";
 import {
   handleTagChildrenError,
   handleTagNestingError,
 } from "./handlers/direct";
-import { sanitizeAttributes, sanitizeTag } from "./sanitizers";
 
 /**
- * Recursively walks through HTML nodes and applies sanitization rules.
+ * Recursively walks through HTML nodes and applies schema enforcement rules.
  *
  * This is the core traversal function that processes each node in the HTML tree.
  * It handles different node types (elements, comments, text) and applies appropriate
- * sanitization based on the configuration and current state.
+ * enforcement based on the configuration and current state.
  *
  * @param node - The HTML node to process
- * @param options - Sanitization configuration options
- * @param state - Current sanitization state including nesting depth and tag tracking
+ * @param options - Schema configuration options
+ * @param state - Current schema state including nesting depth and tag tracking
  *
  * @example
  * ```typescript
  * import { walkNode } from './walker';
- * import type { SanitizerOptions, SanitizerState } from '../types/sanitizer';
+ * import type { SchemaOptions, SchemaState } from '../types/schema';
  *
- * const options: SanitizerOptions = {
+ * const options: SchemaOptions = {
  *   preserveComments: false,
  *   tags: {
  *     "div": {
@@ -37,7 +38,7 @@ import { sanitizeAttributes, sanitizeTag } from "./sanitizers";
  *   topLevelLimits: { nesting: 5 }
  * };
  *
- * const state: SanitizerState = {
+ * const state: SchemaState = {
  *   rootNesting: 0,
  *   tagNesting: []
  * };
@@ -54,8 +55,8 @@ import { sanitizeAttributes, sanitizeTag } from "./sanitizers";
  */
 export function walkNode(
   node: Htmlparser2TreeAdapterMap["node"],
-  options: SanitizerOptions,
-  state: SanitizerState,
+  options: SchemaOptions,
+  state: SchemaState,
 ) {
   if (adapter.isElementNode(node)) {
     if (
@@ -82,25 +83,25 @@ export function walkNode(
 }
 
 /**
- * Processes an HTML element node and applies comprehensive sanitization rules.
+ * Processes an HTML element node and applies comprehensive schema enforcement rules.
  *
- * This function handles the complete sanitization workflow for element nodes:
- * 1. Tag validation and sanitization
- * 2. Attribute validation and sanitization
+ * This function handles the complete enforcement workflow for element nodes:
+ * 1. Tag validation and enforcement
+ * 2. Attribute validation and enforcement
  * 3. Children count enforcement
  * 4. Tag nesting depth enforcement
  * 5. Recursive processing of child nodes
  *
  * @param element - The HTML element node to process
- * @param options - Sanitization configuration options
- * @param state - Current sanitization state including nesting depth and tag tracking
+ * @param options - Schema configuration options
+ * @param state - Current schema state including nesting depth and tag tracking
  *
  * @example
  * ```typescript
  * import { walkElement } from './walker';
- * import type { SanitizerOptions, SanitizerState } from '../types/sanitizer';
+ * import type { SchemaOptions, SchemaState } from '../types/schema';
  *
- * const options: SanitizerOptions = {
+ * const options: SchemaOptions = {
  *   tags: {
  *     "div": {
  *       attributes: {
@@ -125,7 +126,7 @@ export function walkNode(
  *   }
  * };
  *
- * const state: SanitizerState = {
+ * const state: SchemaState = {
  *   rootNesting: 1,
  *   tagNesting: [{ key: "body", value: 0 }]
  * };
@@ -136,8 +137,8 @@ export function walkNode(
  *
  * @remarks
  * The function performs the following operations in order:
- * 1. **Tag Sanitization**: Validates the tag against rules and applies error handling
- * 2. **Attribute Sanitization**: Processes all attributes according to their rules
+ * 1. **Tag Enforcement**: Validates the tag against rules and applies error handling
+ * 2. **Attribute Enforcement**: Processes all attributes according to their rules
  * 3. **Children Enforcement**: Checks if the element has too many children
  * 4. **Nesting Enforcement**: Validates nesting depth for all parent tags in the hierarchy
  * 5. **Recursive Processing**: Walks through all child nodes with updated state
@@ -147,19 +148,19 @@ export function walkNode(
  */
 function walkElement(
   element: Htmlparser2TreeAdapterMap["element"],
-  options: SanitizerOptions,
-  state: SanitizerState,
+  options: SchemaOptions,
+  state: SchemaState,
 ) {
   const tagName = element.tagName;
   const tagRule = options.tags?.[tagName];
 
-  // Tag sanitization
-  if (!sanitizeTag(element, tagRule, options.errorHandling?.tag)) {
+  // Tag enforcement
+  if (!enforceTag(element, tagRule, options.errorHandling?.tag)) {
     return;
   }
 
-  // Attributes sanitization
-  if (!sanitizeAttributes(element, tagRule.attributes, options.errorHandling)) {
+  // Attributes enforcement
+  if (!enforceAttributes(element, tagRule.attributes, options.errorHandling)) {
     return;
   }
 
@@ -201,12 +202,12 @@ function walkElement(
     }
   }
 
-  const newState: SanitizerState = {
+  const newState: SchemaState = {
     ...state,
     tagNesting: [...tagDepth, { key: tagName, value: 0 }],
   };
 
-  // Children sanitization
+  // Children traversal
   let child = element.firstChild;
   while (child) {
     const next = child.nextSibling;

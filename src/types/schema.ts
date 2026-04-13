@@ -60,60 +60,65 @@ export type ErrorHandling = {
 };
 
 /**
- * Configuration options for the HTML sanitizer.
+ * Configuration options for the HTML schema enforcer.
  *
- * Defines the complete set of options that control how HTML content is sanitized,
- * including error handling strategies, tag rules, and processing limits.
+ * Defines the complete set of options that control how HTML content is enforced
+ * against a schema, including error handling strategies, tag rules, and processing limits.
  *
  * @example
  * ```typescript
- * const options: SanitizerOptions = {
+ * const options: SchemaOptions = {
  *   preserveComments: true,
  *   errorHandling: {
- *     tag: "discardElement",
  *     attribute: "discardAttribute"
+ *     tag: "discardElement",
  *   },
  *   tags: {
  *     "div": {
- *       allowedAttributes: ["class", "id"],
- *       allowedValues: {
- *         "class": ["container", "row", "col"]
+ *       attributes: {
+ *         "class": {
+ *           delimiter: " ",
+ *           mode: "set",
+ *           values: ["container", "row", "col"]
+ *         }
  *       }
  *     },
  *     "a": {
- *       allowedAttributes: ["href"],
- *       allowedValues: {
- *         "href": /^https?:\/\//
+ *       attributes: {
+ *         "href": {
+ *           mode: "simple",
+ *           value: /^https?:\/\//
+ *         }
  *       }
  *     }
  *   },
  *   topLevelLimits: {
- *     maxDepth: 10,
- *     maxChildren: 100
+ *     nesting: 10,
+ *     children: 100
  *   }
  * };
  * ```
  */
-export type SanitizerOptions = ReadonlyDeep<{
-  /** Configuration for error handling behavior during sanitization */
+export type SchemaOptions = ReadonlyDeep<{
+  /** Configuration for error handling behavior during schema enforcement */
   errorHandling?: ErrorHandling;
   /** Whether to preserve HTML comments in the output (default: false) */
   preserveComments?: boolean;
-  /** Rules defining which tags and attributes are allowed */
+  /** Schema rules defining which tags and attributes are allowed */
   tags?: Record<TagKey, TagRule>;
   /** Limits applied to the top-level document structure */
   topLevelLimits?: TagLimits;
 }>;
 
 /**
- * Internal state tracking for the HTML sanitizer during processing.
+ * Internal state tracking for the HTML schema enforcer during processing.
  *
  * Maintains information about the current nesting depth and tag hierarchy
- * to enforce nesting rules and limits during sanitization.
+ * to enforce nesting rules and limits during traversal.
  *
  * @example
  * ```typescript
- * const state: SanitizerState = {
+ * const state: SchemaState = {
  *   rootNesting: 2,
  *   tagNesting: [
  *     { key: "div", value: 1 },
@@ -123,7 +128,7 @@ export type SanitizerOptions = ReadonlyDeep<{
  * };
  * ```
  */
-export type SanitizerState = {
+export type SchemaState = {
   /** Current nesting depth from the root element */
   rootNesting: number;
   /** Array tracking the nesting count for each tag type */

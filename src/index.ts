@@ -3,28 +3,29 @@ import type { Htmlparser2TreeAdapterMap } from "parse5-htmlparser2-tree-adapter"
 import { parseFragment, serialize } from "parse5";
 import { adapter } from "parse5-htmlparser2-tree-adapter";
 
-import type { SanitizerOptions } from "./types/sanitizer";
+import type { SchemaOptions } from "./types/schema";
 
 import { handleTagChildrenError } from "./lib/handlers/direct";
 import { walkNode } from "./lib/walker";
 
 /**
- * Sanitizes HTML content by removing or modifying potentially dangerous elements and attributes.
+ * Enforces a schema on HTML content by removing or modifying elements and attributes
+ * that do not conform to the provided rules.
  *
- * This function parses the input HTML, applies sanitization rules based on the provided options,
- * and returns a cleaned version of the HTML. It handles tag validation, attribute filtering,
+ * This function parses the input HTML, applies schema rules based on the provided options,
+ * and returns a conformed version of the HTML. It handles tag validation, attribute filtering,
  * nesting limits, and error handling according to the configuration.
  *
- * @param html - The HTML string to sanitize
- * @param options - Configuration options that define sanitization rules and behavior
- * @returns The sanitized HTML string
+ * @param html - The HTML string to enforce the schema on
+ * @param options - Configuration options that define the schema rules and behavior
+ * @returns The conformed HTML string
  *
  * @example
  * ```typescript
- * import { sanitizeHtml } from './index';
- * import type { SanitizerOptions } from './types/sanitizer';
+ * import { enforceHtml } from './index';
+ * import type { SchemaOptions } from './types/schema';
  *
- * const options: SanitizerOptions = {
+ * const options: SchemaOptions = {
  *   preserveComments: false,
  *   errorHandling: {
  *     tag: "discardElement",
@@ -66,15 +67,15 @@ import { walkNode } from "./lib/walker";
  *   }
  * };
  *
- * const dirtyHtml = '<div class="container"><a href="javascript:alert(1)">Click me</a></div>';
- * const cleanHtml = sanitizeHtml(dirtyHtml, options);
- * console.log(cleanHtml); // '<div class="container"></div>'
+ * const html = '<div class="container"><a href="javascript:alert(1)">Click me</a></div>';
+ * const conformed = enforceHtml(html, options);
+ * console.log(conformed); // '<div class="container"></div>'
  * ```
  *
  * @example
  * ```typescript
  * // Basic usage with minimal configuration
- * const basicOptions: SanitizerOptions = {
+ * const basicOptions: SchemaOptions = {
  *   tags: {
  *     "p": {
  *       attributes: {
@@ -88,14 +89,14 @@ import { walkNode } from "./lib/walker";
  * };
  *
  * const html = '<p class="text-center">Hello World</p><script>alert("xss")</script>';
- * const sanitized = sanitizeHtml(html, basicOptions);
- * console.log(sanitized); // '<p class="text-center">Hello World</p>'
+ * const conformed = enforceHtml(html, basicOptions);
+ * console.log(conformed); // '<p class="text-center">Hello World</p>'
  * ```
  *
  * @throws {Error} May throw errors if error handling is configured to "throwError" mode
  * and validation failures occur during processing.
  */
-export function sanitizeHtml(html: string, options: SanitizerOptions): string {
+export function enforceHtml(html: string, options: SchemaOptions): string {
   if (html === "") {
     return "";
   }

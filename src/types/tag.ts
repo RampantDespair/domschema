@@ -265,7 +265,7 @@ export type TagAttributeValueSet = string[];
 export type TagKey = HtmlTag | string;
 
 /**
- * Limits that can be applied to HTML tags during sanitization.
+ * Limits that can be applied to HTML tags during schema enforcement.
  *
  * Provides constraints on tag structure and nesting to prevent
  * excessive nesting or too many children.
@@ -286,7 +286,7 @@ export type TagLimits = {
 };
 
 /**
- * Rules defining how a specific HTML tag should be processed during sanitization.
+ * Rules defining how a specific HTML tag should be processed during schema enforcement.
  *
  * Combines attribute validation rules with structural limits to control
  * how tags and their attributes are handled.
