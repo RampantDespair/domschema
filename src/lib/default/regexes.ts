@@ -8,3 +8,5 @@ export const floatRegex =
 export const positiveFloatRegex = /^(?:[1-9]\d*(?:\.\d+)?|0\.\d*[1-9]\d*)$/;
 export const nonNegativeFloatRegex = /^(?:0(?:\.\d+)?|[1-9]\d*(?:\.\d+)?)$/;
 export const negativeFloatRegex = /^-(?:[1-9]\d*(?:\.\d+)?|0\.\d*[1-9]\d*)$/;
+
+export const mimeTypeRegex = /^[a-z0-9.+-]+\/[a-z0-9.+-]+$/i;
