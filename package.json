@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json.schemastore.org/package.json",
+  "name": "htmlschema",
+  "version": "1.0.0",
+  "description": "Declarative schema-based HTML attribute validation. Define which tags, attributes, and values are allowed and enforce them.",
+  "keywords": [
+    "html",
+    "sanitizer",
+    "schema",
+    "validation",
+    "attributes",
+    "filter",
+    "policy",
+    "allowlist",
+    "html-validation",
+    "attribute-validation"
+  ],
+  "homepage": "https://github.com/RampantDespair/htmlschema#readme",
+  "bugs": {
+    "url": "https://github.com/RampantDespair/htmlschema/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RampantDespair/htmlschema.git"
+  },
+  "license": "MIT",
+  "author": "RampantDespair",
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf dist",
+    "lint": "npx eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "parse5": "^8.0.0",
+    "parse5-htmlparser2-tree-adapter": "^8.0.0",
+    "postcss": "^8.5.9"
+  },
+  "devDependencies": {
+    "@eslint/config-inspector": "^1.5.0",
+    "@eslint/js": "^9.39.4",
+    "@types/node": "^25.6.0",
+    "@typescript-eslint/types": "^8.58.2",
+    "@typescript-eslint/utils": "^8.58.2",
+    "@vitest/coverage-v8": "^4.1.4",
+    "eslint": "^9.39.4",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-perfectionist": "^5.8.0",
+    "fast-check": "^4.6.0",
+    "globals": "^17.5.0",
+    "prettier": "^3.8.2",
+    "prettier-plugin-packagejson": "^3.0.2",
+    "rimraf": "^6.1.3",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "type-fest": "^5.5.0",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.2",
+    "vitest": "^4.1.4"
+  }
+}
