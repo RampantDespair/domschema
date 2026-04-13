@@ -4,16 +4,16 @@
   "version": "1.0.0",
   "description": "Declarative schema-based HTML attribute validation. Define which tags, attributes, and values are allowed and enforce them.",
   "keywords": [
-    "html",
-    "sanitizer",
-    "schema",
-    "validation",
-    "attributes",
-    "filter",
-    "policy",
     "allowlist",
+    "attributes",
+    "conformance",
+    "html",
+    "html-policy",
+    "html-schema",
     "html-validation",
-    "attribute-validation"
+    "policy",
+    "schema",
+    "validation"
   ],
   "homepage": "https://github.com/RampantDespair/htmlschema#readme",
   "bugs": {
@@ -44,7 +44,8 @@
     "build": "tsup",
     "clean": "rimraf dist",
     "lint": "npx eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "parse5": "^8.0.0",
