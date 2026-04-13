@@ -1,6 +1,7 @@
 import type { TagAttributeValueRule } from "@/src/types/rules";
 
 import {
+  bcp47Regex,
   floatRegex,
   integerRegex,
   mimeTypeRegex,
@@ -11,6 +12,15 @@ import {
   positiveFloatRegex,
   positiveIntegerRegex,
 } from "./regexes";
+
+// -----------------------------------------------------------------------------
+// Any attributes
+// -----------------------------------------------------------------------------
+
+export const defaultAnyAttribute: TagAttributeValueRule = {
+  mode: "simple",
+  value: "*",
+};
 
 // -----------------------------------------------------------------------------
 // Boolean attributes
@@ -96,4 +106,9 @@ export const defaultDateTimeAttribute: TagAttributeValueRule = {
 export const defaultMimeTypeAttribute: TagAttributeValueRule = {
   mode: "simple",
   value: mimeTypeRegex,
+};
+
+export const defaultBcp47Attribute: TagAttributeValueRule = {
+  mode: "simple",
+  value: bcp47Regex,
 };
