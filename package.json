@@ -1,27 +1,27 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "htmlschema",
+  "name": "domschema",
   "version": "1.0.0",
   "description": "Declarative schema-based HTML attribute validation. Define which tags, attributes, and values are allowed and enforce them.",
   "keywords": [
     "allowlist",
     "attributes",
     "conformance",
+    "dom",
+    "dom-schema",
     "html",
-    "html-policy",
     "html-schema",
-    "html-validation",
     "policy",
     "schema",
     "validation"
   ],
-  "homepage": "https://github.com/RampantDespair/htmlschema#readme",
+  "homepage": "https://github.com/RampantDespair/domschema#readme",
   "bugs": {
-    "url": "https://github.com/RampantDespair/htmlschema/issues"
+    "url": "https://github.com/RampantDespair/domschema/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RampantDespair/htmlschema.git"
+    "url": "git+https://github.com/RampantDespair/domschema.git"
   },
   "license": "MIT",
   "author": "RampantDespair",
@@ -50,7 +50,8 @@
   "dependencies": {
     "parse5": "^8.0.0",
     "parse5-htmlparser2-tree-adapter": "^8.0.0",
-    "postcss": "^8.5.9"
+    "postcss": "^8.5.9",
+    "postcss-value-parser": "^4.2.0"
   },
   "devDependencies": {
     "@eslint/config-inspector": "^1.5.0",
