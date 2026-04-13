@@ -1,4 +1,4 @@
-import type { TagAttributeValueRule } from "@/src/types/rules";
+import type { TagAttributeValueRule } from "../../types/rules";
 
 import {
   bcp47Regex,
