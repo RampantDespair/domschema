@@ -168,7 +168,6 @@ const rules = {
     "import-x/no-duplicates": ["error", { "prefer-inline": false }],
   },
   n: {
-    "n/no-unpublished-import": ["error", { allowModules: ["type-fest", "vitest"] }],
     "n/no-unsupported-features/node-builtins": "warn",
     "n/prefer-global/buffer": "error",
     "n/prefer-global/console": "error",
