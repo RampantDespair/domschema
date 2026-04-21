@@ -50,7 +50,7 @@
 
     /* JavaScript Support */
     "allowJs": true /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */,
-    // "checkJs": true,                                  /* Enable error reporting in type-checked JavaScript files. */
+    "checkJs": true /* Enable error reporting in type-checked JavaScript files. */,
     // "maxNodeModuleJsDepth": 1,                        /* Specify the maximum folder depth used for checking JavaScript files from 'node_modules'. Only applicable with 'allowJs'. */
 
     /* Emit */
@@ -99,7 +99,7 @@
     // "noUnusedLocals": true,                           /* Enable error reporting when local variables aren't read. */
     // "noUnusedParameters": true,                       /* Raise an error when a function parameter isn't read. */
     // "exactOptionalPropertyTypes": true,               /* Interpret optional property types as written, rather than adding 'undefined'. */
-    // "noImplicitReturns": true,                        /* Enable error reporting for codepaths that do not explicitly return in a function. */
+    "noImplicitReturns": true /* Enable error reporting for codepaths that do not explicitly return in a function. */,
     // "noFallthroughCasesInSwitch": true,               /* Enable error reporting for fallthrough cases in switch statements. */
     // "noUncheckedIndexedAccess": true,                 /* Add 'undefined' to a type when accessed using an index. */
     // "noImplicitOverride": true,                       /* Ensure overriding members in derived classes are marked with an override modifier. */
@@ -115,9 +115,25 @@
     "**/*.js",
     "**/*.mjs",
     "**/*.cjs",
-    "**/*.cts",
+    "**/*.jsx",
     "**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    "**/*.cts",
+    "**/*.tsx"
   ],
-  "exclude": ["coverage", "dist", "node_modules"]
+  "exclude": [
+    ".git",
+    ".next",
+    ".turbo",
+    ".vs",
+    ".vscode",
+    "bin",
+    "build",
+    "coverage",
+    "dist",
+    "node_modules",
+    "obj",
+    "out",
+    "public"
+  ]
 }
