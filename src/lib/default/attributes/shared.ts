@@ -109,12 +109,24 @@ export const defaultSharedAttributes: DefaultSharedAttributes = {
     mode: "simple",
     // https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/max#syntax
     value: (v) => {
-      if (dateRegex.test(v)) return true;
-      if (monthRegex.test(v)) return true;
-      if (weekRegex.test(v)) return true;
-      if (timeRegex.test(v)) return true;
-      if (!Number.isNaN(Date.parse(v))) return true;
-      if (!Number.isNaN(Number(v))) return true;
+      if (dateRegex.test(v)) {
+        return true;
+      }
+      if (monthRegex.test(v)) {
+        return true;
+      }
+      if (weekRegex.test(v)) {
+        return true;
+      }
+      if (timeRegex.test(v)) {
+        return true;
+      }
+      if (!Number.isNaN(Date.parse(v))) {
+        return true;
+      }
+      if (!Number.isNaN(Number(v))) {
+        return true;
+      }
       return false;
     },
   },
@@ -123,12 +135,24 @@ export const defaultSharedAttributes: DefaultSharedAttributes = {
     mode: "simple",
     // https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/min#syntax
     value: (v) => {
-      if (dateRegex.test(v)) return true;
-      if (monthRegex.test(v)) return true;
-      if (weekRegex.test(v)) return true;
-      if (timeRegex.test(v)) return true;
-      if (!Number.isNaN(Date.parse(v))) return true;
-      if (!Number.isNaN(Number(v))) return true;
+      if (dateRegex.test(v)) {
+        return true;
+      }
+      if (monthRegex.test(v)) {
+        return true;
+      }
+      if (weekRegex.test(v)) {
+        return true;
+      }
+      if (timeRegex.test(v)) {
+        return true;
+      }
+      if (!Number.isNaN(Date.parse(v))) {
+        return true;
+      }
+      if (!Number.isNaN(Number(v))) {
+        return true;
+      }
       return false;
     },
   },

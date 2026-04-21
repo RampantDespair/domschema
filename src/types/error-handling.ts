@@ -5,8 +5,8 @@
  * - Falls back to {@link TagAttributeValueErrorHandlingMode} for other errors
  */
 export type TagAttributeCollectionValueTooManyErrorHandlingMode =
-  | "dropExtra"
-  | TagAttributeValueErrorHandlingMode;
+  | TagAttributeValueErrorHandlingMode
+  | "dropExtra";
 
 /**
  * Error handling mode for tag attribute errors.
@@ -15,8 +15,8 @@ export type TagAttributeCollectionValueTooManyErrorHandlingMode =
  * - Falls back to {@link TagErrorHandlingMode} for other errors
  */
 export type TagAttributeErrorHandlingMode =
-  | "discardAttribute"
-  | TagErrorHandlingMode;
+  | TagErrorHandlingMode
+  | "discardAttribute";
 
 /**
  * Error handling mode for duplicate values in tag attribute records.
@@ -28,11 +28,11 @@ export type TagAttributeErrorHandlingMode =
  * - Falls back to {@link TagAttributeValueErrorHandlingMode} for other errors
  */
 export type TagAttributeRecordValueDuplicateErrorHandlingMode =
+  | TagAttributeValueErrorHandlingMode
   | "dropDuplicates"
   | "keepDuplicates"
   | "keepFirst"
-  | "keepLast"
-  | TagAttributeValueErrorHandlingMode;
+  | "keepLast";
 
 /**
  * Error handling mode for tag attribute record value errors.
@@ -41,8 +41,8 @@ export type TagAttributeRecordValueDuplicateErrorHandlingMode =
  * - Falls back to {@link TagAttributeValueErrorHandlingMode} for other errors
  */
 export type TagAttributeRecordValueErrorHandlingMode =
-  | "dropPair"
-  | TagAttributeValueErrorHandlingMode;
+  | TagAttributeValueErrorHandlingMode
+  | "dropPair";
 
 /**
  * Error handling mode for tag attribute set value errors.
@@ -51,8 +51,8 @@ export type TagAttributeRecordValueErrorHandlingMode =
  * - Falls back to {@link TagAttributeValueErrorHandlingMode} for other errors
  */
 export type TagAttributeSetValueErrorHandlingMode =
-  | "dropValue"
-  | TagAttributeValueErrorHandlingMode;
+  | TagAttributeValueErrorHandlingMode
+  | "dropValue";
 
 /**
  * Error handling mode for tag attribute value errors.
@@ -61,8 +61,8 @@ export type TagAttributeSetValueErrorHandlingMode =
  * - Falls back to {@link TagAttributeErrorHandlingMode} for other errors
  */
 export type TagAttributeValueErrorHandlingMode =
-  | "applyDefaultValue"
-  | TagAttributeErrorHandlingMode;
+  | TagAttributeErrorHandlingMode
+  | "applyDefaultValue";
 
 /**
  * Error handling mode for when a tag attribute value is too long.
@@ -71,8 +71,8 @@ export type TagAttributeValueErrorHandlingMode =
  * - Falls back to {@link TagAttributeValueErrorHandlingMode} for other errors
  */
 export type TagAttributeValueTooLongErrorHandlingMode =
-  | "trimExcess"
-  | TagAttributeValueErrorHandlingMode;
+  | TagAttributeValueErrorHandlingMode
+  | "trimExcess";
 
 /**
  * Error handling mode for tag children errors.

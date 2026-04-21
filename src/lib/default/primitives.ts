@@ -100,7 +100,9 @@ export const defaultNegativeFloatAttribute: TagAttributeValueRule = {
 
 export const defaultDateTimeAttribute: TagAttributeValueRule = {
   mode: "simple",
-  value: (value) => !Number.isNaN(Date.parse(value)),
+  value: (value) => {
+    return !Number.isNaN(Date.parse(value));
+  },
 };
 
 export const defaultMimeTypeAttribute: TagAttributeValueRule = {

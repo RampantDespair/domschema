@@ -1,6 +1,3 @@
-import type { Htmlparser2TreeAdapterMap } from "parse5-htmlparser2-tree-adapter";
-import type { ReadonlyDeep } from "type-fest";
-
 import type { TagAttributeValueErrorHandlingMode } from "../../types/error-handling";
 import type {
   TagAttributeRecordValueRule,
@@ -10,6 +7,8 @@ import type {
 } from "../../types/rules";
 import type { ErrorHandling } from "../../types/schema";
 import type { TagAttribute, TagAttributeValueRecord } from "../../types/tag";
+import type { Htmlparser2TreeAdapterMap } from "parse5-htmlparser2-tree-adapter";
+import type { ReadonlyDeep } from "type-fest";
 
 import {
   handleTagAttributeRecordValueError,
@@ -66,7 +65,7 @@ export function enforceAttributeRecordValue(
   attribute: TagAttribute,
   element: Htmlparser2TreeAdapterMap["element"],
   rule: ReadonlyDeep<TagAttributeRecordValueRule>,
-  errorHandling?: ErrorHandling | undefined,
+  errorHandling?: ErrorHandling,
 ): boolean {
   let input = parseRecord(
     attribute.value,
@@ -138,7 +137,9 @@ export function enforceAttributeRecordValue(
   }
 
   element.attribs[attribute.key] = output
-    .map(({ key, val }) => `${key}${rule.keyValueSeparator}${val}`)
+    .map(({ key, val }) => {
+      return `${key}${rule.keyValueSeparator}${val}`;
+    })
     .join(rule.entrySeparator);
 
   return true;
@@ -182,7 +183,7 @@ export function enforceAttributeSetValue(
   attribute: TagAttribute,
   element: Htmlparser2TreeAdapterMap["element"],
   rule: ReadonlyDeep<TagAttributeSetValueRule>,
-  errorHandling?: ErrorHandling | undefined,
+  errorHandling?: ErrorHandling,
 ): boolean {
   let input = parseSet(attribute.value, rule.delimiter);
 
@@ -262,7 +263,7 @@ export function enforceAttributeSimpleValue(
   attribute: TagAttribute,
   element: Htmlparser2TreeAdapterMap["element"],
   rule: ReadonlyDeep<TagAttributeSimpleValueRule>,
-  errorHandling?: TagAttributeValueErrorHandlingMode | undefined,
+  errorHandling?: TagAttributeValueErrorHandlingMode,
 ): boolean {
   if (!matchComparator(rule.value, attribute.value)) {
     return handleTagAttributeValueError(
@@ -307,7 +308,7 @@ export function enforceAttributeValue(
   attribute: TagAttribute,
   element: Htmlparser2TreeAdapterMap["element"],
   rule: ReadonlyDeep<TagAttributeValueRule>,
-  errorHandling?: ErrorHandling | undefined,
+  errorHandling?: ErrorHandling,
 ): boolean {
   if (rule.maxLength && attribute.value.length > rule.maxLength) {
     if (
@@ -345,5 +346,7 @@ export function enforceAttributeValue(
         rule,
         errorHandling?.attributeValue,
       );
+    default:
+      return false;
   }
 }

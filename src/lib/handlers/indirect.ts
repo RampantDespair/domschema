@@ -1,6 +1,3 @@
-import type { Htmlparser2TreeAdapterMap } from "parse5-htmlparser2-tree-adapter";
-import type { ReadonlyDeep } from "type-fest";
-
 import type {
   TagAttributeCollectionValueTooManyErrorHandlingMode,
   TagAttributeRecordValueDuplicateErrorHandlingMode,
@@ -14,6 +11,8 @@ import type {
   TagAttributeValueCollection,
   TagAttributeValueRecord,
 } from "../../types/tag";
+import type { Htmlparser2TreeAdapterMap } from "parse5-htmlparser2-tree-adapter";
+import type { ReadonlyDeep } from "type-fest";
 
 import { handleTagAttributeValueError } from "./direct";
 
@@ -104,11 +103,12 @@ export function handleTagAttributeCollectionValueTooManyError<
   rule: ReadonlyDeep<TagAttributeCollectionValueRule>,
   errorHandlingMode?: TagAttributeCollectionValueTooManyErrorHandlingMode,
   errorMessage?: string,
-): { output: T; proceed: boolean } {
+): { output: T; proceed: boolean; } {
   switch (errorHandlingMode) {
-    case "dropExtra":
-      collection = collection.slice(0, rule.maxEntries) as T;
-      return { output: collection, proceed: true };
+    case "dropExtra": {
+      const sliced = collection.slice(0, rule.maxEntries) as T;
+      return { output: sliced, proceed: true };
+    }
     default:
       return {
         output: collection,
@@ -118,7 +118,7 @@ export function handleTagAttributeCollectionValueTooManyError<
           rule,
           errorHandlingMode,
           errorMessage ??
-            `Value ${attribute.value} for attribute ${attribute.key} has too many tokens`,
+          `Value ${attribute.value} for attribute ${attribute.key} has too many tokens`,
         ),
       };
   }
@@ -235,16 +235,22 @@ export function handleTagAttributeRecordValueDuplicateError(
   output: TagAttributeValueRecord;
 } {
   switch (errorHandlingMode) {
-    case "dropDuplicates":
-      record = record.filter((entry) => entry.key !== key);
-      return { globalProceed: true, localProceed: false, output: record };
+    case "dropDuplicates": {
+      const filtered = record.filter((entry) => {
+        return entry.key !== key;
+      });
+      return { globalProceed: true, localProceed: false, output: filtered };
+    }
     case "keepDuplicates":
       return { globalProceed: true, localProceed: true, output: record };
     case "keepFirst":
       return { globalProceed: true, localProceed: false, output: record };
-    case "keepLast":
-      record = record.filter((entry) => entry.key !== key);
-      return { globalProceed: true, localProceed: true, output: record };
+    case "keepLast": {
+      const filtered = record.filter((entry) => {
+        return entry.key !== key;
+      });
+      return { globalProceed: true, localProceed: true, output: filtered };
+    }
     default: {
       const result = handleTagAttributeValueError(
         attribute,
@@ -252,7 +258,7 @@ export function handleTagAttributeRecordValueDuplicateError(
         rule,
         errorHandlingMode,
         errorMessage ??
-          `Value ${attribute.value} for attribute ${attribute.key} has duplicate ${key} keys`,
+        `Value ${attribute.value} for attribute ${attribute.key} has duplicate ${key} keys`,
       );
       return { globalProceed: result, localProceed: result, output: record };
     }

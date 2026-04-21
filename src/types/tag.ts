@@ -162,12 +162,12 @@ export type HtmlTag =
  * };
  * ```
  */
-export type TagAttribute = {
+export interface TagAttribute {
   /** The attribute name (e.g., "class", "id", "href") */
   key: string;
   /** The attribute value (e.g., "btn btn-primary", "my-id", "https://example.com") */
   value: string;
-};
+}
 
 /**
  * A tag attribute key that can be either a specific attribute name or a wildcard.
@@ -181,7 +181,7 @@ export type TagAttribute = {
  * const wildcardKey: TagAttributeKey = "*"; // Matches any attribute
  * ```
  */
-export type TagAttributeKey = "*" | string;
+export type TagAttributeKey = string | "*";
 
 /**
  * A collection of attribute values that can be either a record or set format.
@@ -218,7 +218,7 @@ export type TagAttributeValueCollection =
  * };
  * ```
  */
-export type TagAttributeValueEntry = { key: string; val: string };
+export interface TagAttributeValueEntry { key: string; val: string; }
 
 /**
  * An attribute value in record format (array of key-value pairs).
@@ -278,12 +278,12 @@ export type TagKey = HtmlTag | string;
  * };
  * ```
  */
-export type TagLimits = {
+export interface TagLimits {
   /** Maximum number of child elements allowed (optional) */
   children?: number;
   /** Maximum nesting depth allowed for this tag (optional) */
   nesting?: number;
-};
+}
 
 /**
  * Rules defining how a specific HTML tag should be processed during schema enforcement.
@@ -319,9 +319,9 @@ export type TagLimits = {
  * };
  * ```
  */
-export type TagRule = {
+export interface TagRule {
   /** Rules for validating tag attributes (optional) */
   attributes?: Record<TagAttributeKey, TagAttributeValueRule>;
   /** Structural limits for the tag (optional) */
   limits?: TagLimits;
-};
+}

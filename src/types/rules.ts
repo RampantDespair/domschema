@@ -1,5 +1,3 @@
-import type { Simplify } from "type-fest";
-
 import type {
   TagAttributeCollectionValueComparator,
   TagAttributeRecordValueComparator,
@@ -7,6 +5,7 @@ import type {
   TagAttributeSimpleValueComparator,
   TagAttributeValueComparatorMode,
 } from "./comparators";
+import type { Simplify } from "type-fest";
 
 /**
  * A rule for validating tag attribute collection values that combines comparator logic with rule constraints.
@@ -129,7 +128,7 @@ export type TagAttributeSimpleValueRule = TagAttributeSimpleValueComparator &
 export type TagAttributeValueRule = Simplify<
   TagAttributeCollectionValueRule | TagAttributeSimpleValueRule
 > &
-  TagAttributeValueRuleBase;
+TagAttributeValueRuleBase;
 
 /**
  * Base properties shared by all tag attribute value rules.
@@ -147,7 +146,7 @@ export type TagAttributeValueRule = Simplify<
  * };
  * ```
  */
-export type TagAttributeValueRuleBase = {
+export interface TagAttributeValueRuleBase {
   /** Default value to use when the attribute is missing or invalid (optional) */
   defaultValue?: string;
   /** Maximum allowed length for the attribute value (optional) */
@@ -156,4 +155,4 @@ export type TagAttributeValueRuleBase = {
   mode: TagAttributeValueComparatorMode;
   /** Whether this attribute is required to be present (optional, defaults to false) */
   required?: boolean;
-};
+}

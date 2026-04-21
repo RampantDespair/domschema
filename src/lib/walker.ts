@@ -1,8 +1,7 @@
+import type { SchemaOptions, SchemaState } from "../types/schema";
 import type { Htmlparser2TreeAdapterMap } from "parse5-htmlparser2-tree-adapter";
 
 import { adapter } from "parse5-htmlparser2-tree-adapter";
-
-import type { SchemaOptions, SchemaState } from "../types/schema";
 
 import { enforceAttributes } from "./enforcers/attributes";
 import { enforceTag } from "./enforcers/tags";
@@ -180,22 +179,24 @@ function walkElement(
     }
   }
 
-  const tagDepth = state.tagNesting.map((f) => ({ ...f }));
+  const tagDepth = state.tagNesting.map((f) => {
+    return { ...f };
+  });
 
   // Tag nesting enforcement
   for (let i = tagDepth.length - 1; i >= 0; i--) {
-    const tagName = tagDepth[i].key;
+    const tagNameNested = tagDepth[i].key;
     tagDepth[i].value++;
 
-    const tagRule = options.tags?.[tagName];
-    if (!tagRule?.limits?.nesting) {
+    const tagRuleNested = options.tags?.[tagNameNested];
+    if (!tagRuleNested?.limits?.nesting) {
       continue;
     }
 
-    if (tagDepth[i].value > tagRule.limits.nesting) {
+    if (tagDepth[i].value > tagRuleNested.limits.nesting) {
       handleTagNestingError(
         element,
-        tagRule.limits.nesting,
+        tagRuleNested.limits.nesting,
         options.errorHandling?.tagNesting,
       );
       return;

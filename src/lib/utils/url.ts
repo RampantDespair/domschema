@@ -37,13 +37,46 @@ const ipv6Validator = new RegExp(`^${ipv6Re.source}$`, "i");
 const domainValidator = new RegExp(`^${domainRe.source}$`, "i");
 
 // Helper
-const escapeForRegex = (s: string) =>
-  s.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+const escapeForRegex = (s: string) => {
+  return s.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+};
 
 // Fallback
 const hostFallback = String.raw`(?:${domainRe.source}|${ipv4Re.source}|\[(?:${ipv6Re.source})\])`;
 
 type HostKind = "domain" | "ipv4" | "ipv6";
+
+export function classifyHost(input: string): HostKind | null {
+  // Accept both bracketed and bare IPv6 in the list
+  const bare =
+    input.startsWith("[") && input.endsWith("]") ? input.slice(1, -1) : input;
+  if (ipv6Validator.test(bare)) {
+    return "ipv6";
+  }
+  if (ipv4Validator.test(input)) {
+    return "ipv4";
+  }
+  if (domainValidator.test(input)) {
+    return "domain";
+  }
+  return null;
+}
+
+export function hostPatternFromList(hosts: string[]): string {
+  // Build an alternation for concrete hosts
+  const parts = hosts.map((h) => {
+    const kind = classifyHost(h);
+    if (!kind) {
+      throw new Error(`Invalid host: ${h}`);
+    }
+    if (kind === "ipv6") {
+      const bare = h.startsWith("[") && h.endsWith("]") ? h.slice(1, -1) : h;
+      return String.raw`\[${escapeForRegex(bare)}\]`; // IPv6 must be bracketed in URLs
+    }
+    return escapeForRegex(h); // domain or IPv4
+  });
+  return `(?:${parts.join("|")})`;
+}
 
 export function buildAllowedUrlRegex(
   protocols: string[],
@@ -52,11 +85,15 @@ export function buildAllowedUrlRegex(
 ): RegExp {
   // Validate protocols
   for (const p of protocols) {
-    if (!protocolValidator.test(p)) throw new Error(`Invalid protocol: ${p}`);
+    if (!protocolValidator.test(p)) {
+      throw new Error(`Invalid protocol: ${p}`);
+    }
   }
   // Validate hosts
   for (const h of hosts) {
-    if (!classifyHost(h)) throw new Error(`Invalid host: ${h}`);
+    if (!classifyHost(h)) {
+      throw new Error(`Invalid host: ${h}`);
+    }
   }
 
   const protoPart = protocols.length
@@ -70,28 +107,4 @@ export function buildAllowedUrlRegex(
 
   const pattern = `^(?:${absolutePart}${relativePart})$`;
   return new RegExp(pattern, "i");
-}
-
-export function classifyHost(input: string): HostKind | null {
-  // Accept both bracketed and bare IPv6 in the list
-  const bare =
-    input.startsWith("[") && input.endsWith("]") ? input.slice(1, -1) : input;
-  if (ipv6Validator.test(bare)) return "ipv6";
-  if (ipv4Validator.test(input)) return "ipv4";
-  if (domainValidator.test(input)) return "domain";
-  return null;
-}
-
-export function hostPatternFromList(hosts: string[]): string {
-  // Build an alternation for concrete hosts
-  const parts = hosts.map((h) => {
-    const kind = classifyHost(h);
-    if (!kind) throw new Error(`Invalid host: ${h}`);
-    if (kind === "ipv6") {
-      const bare = h.startsWith("[") && h.endsWith("]") ? h.slice(1, -1) : h;
-      return String.raw`\[${escapeForRegex(bare)}\]`; // IPv6 must be bracketed in URLs
-    }
-    return escapeForRegex(h); // domain or IPv4
-  });
-  return `(?:${parts.join("|")})`;
 }

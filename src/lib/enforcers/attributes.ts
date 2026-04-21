@@ -1,10 +1,9 @@
-import type { Htmlparser2TreeAdapterMap } from "parse5-htmlparser2-tree-adapter";
-import type { ReadonlyDeep } from "type-fest";
-
 import type { TagAttributeErrorHandlingMode } from "../../types/error-handling";
 import type { TagAttributeValueRule } from "../../types/rules";
 import type { ErrorHandling } from "../../types/schema";
 import type { TagAttribute, TagAttributeKey } from "../../types/tag";
+import type { Htmlparser2TreeAdapterMap } from "parse5-htmlparser2-tree-adapter";
+import type { ReadonlyDeep } from "type-fest";
 
 import {
   handleTagAttributeError,
@@ -42,9 +41,9 @@ import { enforceAttributeValue } from "./attribute-values";
 export function enforceAttribute(
   attribute: TagAttribute,
   element: Htmlparser2TreeAdapterMap["element"],
-  rule?: ReadonlyDeep<TagAttributeValueRule> | undefined,
-  errorHandling?: TagAttributeErrorHandlingMode | undefined,
-): { globalProceed: boolean; localProceed: boolean } {
+  rule?: ReadonlyDeep<TagAttributeValueRule>,
+  errorHandling?: TagAttributeErrorHandlingMode,
+): { globalProceed: boolean; localProceed: boolean; } {
   if (rule) {
     return { globalProceed: true, localProceed: true };
   }
@@ -53,6 +52,67 @@ export function enforceAttribute(
     globalProceed: handleTagAttributeError(attribute, element, errorHandling),
     localProceed: false,
   };
+}
+
+/**
+ * Enforces required attributes on an HTML element by applying default values
+ * or handling missing required attributes.
+ *
+ * @param element - The HTML element to check for required attributes
+ * @param rules - The attribute rules defining which attributes are required
+ * @param errorHandling - Error handling configuration for missing required attributes
+ * @returns `true` if processing should continue, `false` if the element was removed
+ *
+ * @example
+ * ```typescript
+ * import { enforceRequiredAttributes } from './enforcers/attributes';
+ *
+ * const rules = {
+ *   "href": {
+ *     mode: "simple",
+ *     value: /^https?:\/\//,
+ *     required: true,
+ *     defaultValue: "https://example.com"
+ *   }
+ * };
+ *
+ * // href is missing, so default value will be applied
+ * const result = enforceRequiredAttributes(element, rules, { attributeValue: "applyDefaultValue" });
+ * console.log(element.attribs.href); // "https://example.com"
+ * console.log(result); // true
+ * ```
+ */
+export function enforceRequiredAttributes(
+  element: Htmlparser2TreeAdapterMap["element"],
+  rules:
+    | ReadonlyDeep<Record<TagAttributeKey, TagAttributeValueRule>>
+    | undefined,
+  errorHandling?: ErrorHandling,
+): boolean {
+  if (!rules) {
+    return true;
+  }
+
+  for (const [attrName, rule] of Object.entries(rules)) {
+    if (attrName === "*") {
+      continue;
+    }
+
+    if (rule.required && !(attrName in element.attribs)) {
+      if (
+        !handleTagAttributeValueError(
+          { key: attrName, value: "" },
+          element,
+          rule,
+          errorHandling?.attributeValue,
+        )
+      ) {
+        return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 /**
@@ -102,7 +162,7 @@ export function enforceAttributes(
   rules:
     | ReadonlyDeep<Record<TagAttributeKey, TagAttributeValueRule>>
     | undefined,
-  errorHandling?: ErrorHandling | undefined,
+  errorHandling?: ErrorHandling,
 ): boolean {
   const attributes = element.attribs;
   const keys = Object.keys(attributes);
@@ -128,7 +188,7 @@ export function enforceAttributes(
       return false;
     }
 
-    if (!localProceed) {
+    if (!localProceed || !rule) {
       continue;
     }
 
@@ -136,7 +196,7 @@ export function enforceAttributes(
       !enforceAttributeValue(
         { key: name, value },
         element,
-        rule!,
+        rule,
         errorHandling,
       )
     ) {
@@ -145,65 +205,4 @@ export function enforceAttributes(
   }
 
   return enforceRequiredAttributes(element, rules, errorHandling);
-}
-
-/**
- * Enforces required attributes on an HTML element by applying default values
- * or handling missing required attributes.
- *
- * @param element - The HTML element to check for required attributes
- * @param rules - The attribute rules defining which attributes are required
- * @param errorHandling - Error handling configuration for missing required attributes
- * @returns `true` if processing should continue, `false` if the element was removed
- *
- * @example
- * ```typescript
- * import { enforceRequiredAttributes } from './enforcers/attributes';
- *
- * const rules = {
- *   "href": {
- *     mode: "simple",
- *     value: /^https?:\/\//,
- *     required: true,
- *     defaultValue: "https://example.com"
- *   }
- * };
- *
- * // href is missing, so default value will be applied
- * const result = enforceRequiredAttributes(element, rules, { attributeValue: "applyDefaultValue" });
- * console.log(element.attribs.href); // "https://example.com"
- * console.log(result); // true
- * ```
- */
-export function enforceRequiredAttributes(
-  element: Htmlparser2TreeAdapterMap["element"],
-  rules:
-    | ReadonlyDeep<Record<TagAttributeKey, TagAttributeValueRule>>
-    | undefined,
-  errorHandling?: ErrorHandling | undefined,
-): boolean {
-  if (!rules) {
-    return true;
-  }
-
-  for (const [attrName, rule] of Object.entries(rules)) {
-    if (attrName === "*") {
-      continue;
-    }
-
-    if (rule.required && !(attrName in element.attribs)) {
-      if (
-        !handleTagAttributeValueError(
-          { key: attrName, value: "" },
-          element,
-          rule,
-          errorHandling?.attributeValue,
-        )
-      ) {
-        return false;
-      }
-    }
-  }
-
-  return true;
 }

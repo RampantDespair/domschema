@@ -194,9 +194,11 @@ export const defaultGlobalAttributes: DefaultGlobalAttributes = {
 export function getDefaultGlobalAttributesWithout(
   exclude: (keyof DefaultGlobalAttributes)[],
 ): Partial<DefaultGlobalAttributes> {
-  const result = { ...defaultGlobalAttributes };
-  for (const key of exclude) {
-    delete result[key];
-  }
-  return result;
+  return Object.fromEntries(
+    Object.entries(defaultGlobalAttributes).filter(
+      ([key]) => {
+        return !exclude.includes(key as keyof DefaultGlobalAttributes);
+      },
+    ),
+  );
 }

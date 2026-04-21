@@ -1,8 +1,3 @@
-import type { Htmlparser2TreeAdapterMap } from "parse5-htmlparser2-tree-adapter";
-import type { ReadonlyDeep } from "type-fest";
-
-import { adapter } from "parse5-htmlparser2-tree-adapter";
-
 import type {
   TagAttributeErrorHandlingMode,
   TagAttributeRecordValueErrorHandlingMode,
@@ -19,8 +14,68 @@ import type {
   TagAttributeValueRule,
 } from "../../types/rules";
 import type { TagAttribute } from "../../types/tag";
+import type { Htmlparser2TreeAdapterMap } from "parse5-htmlparser2-tree-adapter";
+import type { ReadonlyDeep } from "type-fest";
+
+import { adapter } from "parse5-htmlparser2-tree-adapter";
 
 import { unwrapInParent } from "../helpers";
+
+/**
+ * Handles general tag errors by applying the specified error handling strategy.
+ *
+ * This function processes tag-level errors and can either remove the element,
+ * unwrap it (remove the tag but keep children), or throw an error.
+ *
+ * @param element - The HTML element that caused the error
+ * @param errorHandlingMode - The error handling strategy to apply
+ * @param errorMessage - Optional custom error message for logging/throwing
+ * @returns `true` if processing should continue, `false` if the element was removed/unwrapped
+ *
+ * @example
+ * ```typescript
+ * import { handleTagError } from './handlers/direct';
+ * import type { TagErrorHandlingMode } from '../types/error-handling';
+ *
+ * const element = document.createElement("script"); // Not allowed tag
+ *
+ * // Remove the element entirely
+ * const result = handleTagError(
+ *   element,
+ *   "discardElement"
+ * );
+ * console.log(result); // false - element was removed
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Unwrap the element (keep children, remove tag)
+ * const result = handleTagError(
+ *   element,
+ *   "unwrapElement"
+ * );
+ * // Children are now direct children of the parent
+ * ```
+ *
+ * @throws {Error} Throws an error if `errorHandlingMode` is "throwError"
+ */
+export function handleTagError(
+  element: Htmlparser2TreeAdapterMap["element"],
+  errorHandlingMode?: TagErrorHandlingMode,
+  errorMessage?: string,
+): boolean {
+  switch (errorHandlingMode) {
+    case "discardElement":
+      adapter.detachNode(element);
+      return false;
+    case "unwrapElement":
+      unwrapInParent(element);
+      return false;
+    case "throwError":
+    default:
+      throw new Error(errorMessage ?? `Tag ${element.tagName} is not allowed`);
+  }
+}
 
 /**
  * Handles errors related to tag attributes by applying the specified error handling strategy.
@@ -60,14 +115,79 @@ export function handleTagAttributeError(
   errorMessage?: string,
 ): boolean {
   switch (errorHandlingMode) {
-    case "discardAttribute":
-      delete element.attribs[attribute.key];
+    case "discardAttribute": {
+      const { [attribute.key]: _, ...rest } = element.attribs;
+      element.attribs = rest;
       return true;
+    }
     default:
       return handleTagError(
         element,
         errorHandlingMode,
         errorMessage ?? `Attribute ${attribute.key} is not allowed`,
+      );
+  }
+}
+
+/**
+ * Handles errors related to attribute values by applying default values or escalating to attribute-level handling.
+ *
+ * This function processes general attribute value errors and can either apply a default value
+ * from the rule configuration or escalate to attribute-level error handling.
+ *
+ * @param attribute - The attribute that caused the error
+ * @param element - The HTML element containing the attribute
+ * @param rule - The validation rule that was violated
+ * @param errorHandlingMode - The error handling strategy to apply
+ * @param errorMessage - Optional custom error message for logging/throwing
+ * @returns `true` if processing should continue, `false` if the element was removed
+ *
+ * @example
+ * ```typescript
+ * import { handleTagAttributeValueError } from './handlers/direct';
+ * import type { TagAttributeValueErrorHandlingMode } from '../types/error-handling';
+ *
+ * const attribute: TagAttribute = { key: "href", value: "javascript:alert(1)" };
+ * const element = document.createElement("a");
+ * const rule = {
+ *   mode: "simple",
+ *   value: /^https?:\/\//,
+ *   defaultValue: "https://example.com"
+ * };
+ *
+ * // Apply default value and continue
+ * const result = handleTagAttributeValueError(
+ *   attribute,
+ *   element,
+ *   rule,
+ *   "applyDefaultValue"
+ * );
+ * // element.attribs.href is now "https://example.com"
+ * ```
+ */
+export function handleTagAttributeValueError(
+  attribute: TagAttribute,
+  element: Htmlparser2TreeAdapterMap["element"],
+  rule: ReadonlyDeep<TagAttributeValueRule>,
+  errorHandlingMode?: TagAttributeValueErrorHandlingMode,
+  errorMessage?: string,
+): boolean {
+  switch (errorHandlingMode) {
+    case "applyDefaultValue":
+      if (rule.defaultValue) {
+        element.attribs[attribute.key] = rule.defaultValue;
+      } else {
+        const { [attribute.key]: _, ...rest } = element.attribs;
+        element.attribs = rest;
+      }
+      return true;
+    default:
+      return handleTagAttributeError(
+        attribute,
+        element,
+        errorHandlingMode,
+        errorMessage ??
+        `Value ${attribute.value} for attribute ${attribute.key} is not allowed`,
       );
   }
 }
@@ -115,7 +235,7 @@ export function handleTagAttributeError(
 export function handleTagAttributeRecordValueError(
   attribute: TagAttribute,
   element: Htmlparser2TreeAdapterMap["element"],
-  record: { key: string; val: string }[],
+  record: { key: string; val: string; }[],
   index: number,
   rule: ReadonlyDeep<TagAttributeRecordValueRule>,
   errorHandlingMode?: TagAttributeRecordValueErrorHandlingMode,
@@ -131,7 +251,7 @@ export function handleTagAttributeRecordValueError(
         rule,
         errorHandlingMode,
         errorMessage ??
-          `Pair ${record[index].key}=${record[index].val} for attribute ${attribute.key} is not allowed`,
+        `Pair ${record[index].key}=${record[index].val} for attribute ${attribute.key} is not allowed`,
       );
   }
 }
@@ -191,69 +311,7 @@ export function handleTagAttributeSetValueError(
         rule,
         errorHandlingMode,
         errorMessage ??
-          `Value ${set[index]} for attribute ${attribute.key} is not allowed`,
-      );
-  }
-}
-
-/**
- * Handles errors related to attribute values by applying default values or escalating to attribute-level handling.
- *
- * This function processes general attribute value errors and can either apply a default value
- * from the rule configuration or escalate to attribute-level error handling.
- *
- * @param attribute - The attribute that caused the error
- * @param element - The HTML element containing the attribute
- * @param rule - The validation rule that was violated
- * @param errorHandlingMode - The error handling strategy to apply
- * @param errorMessage - Optional custom error message for logging/throwing
- * @returns `true` if processing should continue, `false` if the element was removed
- *
- * @example
- * ```typescript
- * import { handleTagAttributeValueError } from './handlers/direct';
- * import type { TagAttributeValueErrorHandlingMode } from '../types/error-handling';
- *
- * const attribute: TagAttribute = { key: "href", value: "javascript:alert(1)" };
- * const element = document.createElement("a");
- * const rule = {
- *   mode: "simple",
- *   value: /^https?:\/\//,
- *   defaultValue: "https://example.com"
- * };
- *
- * // Apply default value and continue
- * const result = handleTagAttributeValueError(
- *   attribute,
- *   element,
- *   rule,
- *   "applyDefaultValue"
- * );
- * // element.attribs.href is now "https://example.com"
- * ```
- */
-export function handleTagAttributeValueError(
-  attribute: TagAttribute,
-  element: Htmlparser2TreeAdapterMap["element"],
-  rule: ReadonlyDeep<TagAttributeValueRule>,
-  errorHandlingMode?: TagAttributeValueErrorHandlingMode,
-  errorMessage?: string,
-): boolean {
-  switch (errorHandlingMode) {
-    case "applyDefaultValue":
-      if (rule.defaultValue) {
-        element.attribs[attribute.key] = rule.defaultValue;
-      } else {
-        delete element.attribs[attribute.key];
-      }
-      return true;
-    default:
-      return handleTagAttributeError(
-        attribute,
-        element,
-        errorHandlingMode,
-        errorMessage ??
-          `Value ${attribute.value} for attribute ${attribute.key} is not allowed`,
+        `Value ${set[index]} for attribute ${attribute.key} is not allowed`,
       );
   }
 }
@@ -312,7 +370,7 @@ export function handleTagAttributeValueTooLongError(
         rule,
         errorHandlingMode,
         errorMessage ??
-          `Value ${attribute.value} for attribute ${attribute.key} is too long`,
+        `Value ${attribute.value} for attribute ${attribute.key} is too long`,
       );
   }
 }
@@ -371,7 +429,7 @@ export function handleTagChildrenError(
     case "discardFirsts": {
       if (excess > 0) {
         for (let i = 0; i < excess; i++) {
-          const first = element.children[0];
+          const first = element.children.at(0);
           if (first) {
             adapter.detachNode(first);
           }
@@ -382,7 +440,7 @@ export function handleTagChildrenError(
     case "discardLasts": {
       if (excess > 0) {
         for (let i = 0; i < excess; i++) {
-          const last = element.children[element.children.length - 1];
+          const last = element.children.at(-1);
           if (last) {
             adapter.detachNode(last);
           }
@@ -401,62 +459,6 @@ export function handleTagChildrenError(
           `Root has exceeded the maximum allowed number of children of ${maxChildren}`,
         );
       }
-  }
-}
-
-/**
- * Handles general tag errors by applying the specified error handling strategy.
- *
- * This function processes tag-level errors and can either remove the element,
- * unwrap it (remove the tag but keep children), or throw an error.
- *
- * @param element - The HTML element that caused the error
- * @param errorHandlingMode - The error handling strategy to apply
- * @param errorMessage - Optional custom error message for logging/throwing
- * @returns `true` if processing should continue, `false` if the element was removed/unwrapped
- *
- * @example
- * ```typescript
- * import { handleTagError } from './handlers/direct';
- * import type { TagErrorHandlingMode } from '../types/error-handling';
- *
- * const element = document.createElement("script"); // Not allowed tag
- *
- * // Remove the element entirely
- * const result = handleTagError(
- *   element,
- *   "discardElement"
- * );
- * console.log(result); // false - element was removed
- * ```
- *
- * @example
- * ```typescript
- * // Unwrap the element (keep children, remove tag)
- * const result = handleTagError(
- *   element,
- *   "unwrapElement"
- * );
- * // Children are now direct children of the parent
- * ```
- *
- * @throws {Error} Throws an error if `errorHandlingMode` is "throwError"
- */
-export function handleTagError(
-  element: Htmlparser2TreeAdapterMap["element"],
-  errorHandlingMode?: TagErrorHandlingMode,
-  errorMessage?: string,
-): boolean {
-  switch (errorHandlingMode) {
-    case "discardElement":
-      adapter.detachNode(element);
-      return false;
-    case "unwrapElement":
-      unwrapInParent(element);
-      return false;
-    case "throwError":
-    default:
-      throw new Error(errorMessage ?? `Tag ${element.tagName} is not allowed`);
   }
 }
 

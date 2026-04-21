@@ -1,27 +1,40 @@
+import type { TagAttributeValueComparator } from "../types/comparators";
 import type { Htmlparser2TreeAdapterMap } from "parse5-htmlparser2-tree-adapter";
 
 import { adapter } from "parse5-htmlparser2-tree-adapter";
-
-import type { TagAttributeValueComparator } from "../types/comparators";
 
 export function matchComparator(
   cmp: TagAttributeValueComparator,
   value: string,
 ): boolean {
   // Any
-  if (cmp === "*") return true;
+  if (cmp === "*") {
+    return true;
+  }
   // Callback
-  if (typeof cmp === "function") return cmp(value);
+  if (typeof cmp === "function") {
+    return cmp(value);
+  }
   // RegExp
-  if (cmp instanceof RegExp) return cmp.test(value);
+  if (cmp instanceof RegExp) {
+    return cmp.test(value);
+  }
   // Exact string
-  if (typeof cmp === "string") return value === cmp;
+  if (typeof cmp === "string") {
+    return value === cmp;
+  }
   // One of
-  if (Array.isArray(cmp)) return cmp.includes(value);
+  if (Array.isArray(cmp)) {
+    return cmp.includes(value);
+  }
   // Boolean
-  if (cmp === true) return value === "";
+  if (cmp === true) {
+    return value === "";
+  }
   // Not boolean
-  if (cmp === false) return value !== "";
+  if (cmp === false) {
+    return value !== "";
+  }
   // Fallback
   return false;
 }
@@ -30,25 +43,35 @@ export function parseRecord(
   input: string,
   entrySep: string,
   pairSep: string,
-): { key: string; val: string }[] {
+): { key: string; val: string; }[] {
   const trimmed = input.trim();
-  if (!trimmed) return [];
+  if (!trimmed) {
+    return [];
+  }
 
   const entries = trimmed
     .split(entrySep)
-    .map((s) => s.trim())
+    .map((s) => {
+      return s.trim();
+    })
     .filter(Boolean);
 
-  const out: { key: string; val: string }[] = [];
+  const out: { key: string; val: string; }[] = [];
   for (const e of entries) {
     const entry = e.split(pairSep);
-    if (entry.length !== 2) continue;
+    if (entry.length !== 2) {
+      continue;
+    }
 
     const key = entry[0].trim();
-    if (!key) continue;
+    if (!key) {
+      continue;
+    }
 
     const val = entry[1].trim();
-    if (!val) continue;
+    if (!val) {
+      continue;
+    }
 
     out.push({ key, val });
   }
@@ -58,13 +81,17 @@ export function parseRecord(
 
 export function parseSet(input: string, delimiter: string): string[] {
   const trimmed = input.trim();
-  if (!trimmed) return [];
+  if (!trimmed) {
+    return [];
+  }
 
   return Array.from(
     new Set(
       trimmed
         .split(delimiter)
-        .map((s) => s.trim())
+        .map((s) => {
+          return s.trim();
+        })
         .filter(Boolean),
     ),
   );

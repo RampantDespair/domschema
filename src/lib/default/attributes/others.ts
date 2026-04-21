@@ -92,7 +92,9 @@ export const defaultOtherAttributes: DefaultOtherAttributes = {
   },
   download: {
     mode: "simple",
-    value: (v) => v === "" || /^[^/\\]+$/.test(v),
+    value: (v) => {
+      return v === "" || /^[^/\\]+$/.test(v);
+    },
   },
   fetchpriority: {
     mode: "simple",

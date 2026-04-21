@@ -116,13 +116,13 @@ export type TagAttributeSimpleValueComparator = ReadonlyDeep<{
  * ```
  */
 export type TagAttributeValueComparator = ReadonlyDeep<
-  | "*" // Allow any value
-  | ((value: string) => boolean) // Custom validation function
-  | false // Reject boolean-like values
   | RegExp // Pattern matching with regular expression
+  | string[] // Must be one of the provided strings // Custom validation function
   | string // Exact string match
-  | string[] // Must be one of the provided strings
+  | "*" // Allow any value
+  | false // Reject boolean-like values
   | true // Accept boolean-like values
+  | ((value: string) => boolean)
 >;
 
 /**

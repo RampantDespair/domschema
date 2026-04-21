@@ -1,5 +1,3 @@
-import type { ReadonlyDeep } from "type-fest";
-
 import type {
   TagAttributeCollectionValueTooManyErrorHandlingMode,
   TagAttributeErrorHandlingMode,
@@ -13,6 +11,7 @@ import type {
   TagNestingErrorHandlingMode,
 } from "./error-handling";
 import type { TagKey, TagLimits, TagRule } from "./tag";
+import type { ReadonlyDeep } from "type-fest";
 
 /**
  * Configuration for how different types of errors should be handled during sanitization.
@@ -36,7 +35,7 @@ import type { TagKey, TagLimits, TagRule } from "./tag";
  * };
  * ```
  */
-export type ErrorHandling = {
+export interface ErrorHandling {
   /** How to handle general tag attribute errors */
   attribute?: TagAttributeErrorHandlingMode;
   /** How to handle when attribute collections have too many values */
@@ -57,7 +56,7 @@ export type ErrorHandling = {
   tagChildren?: TagChildrenErrorHandlingMode;
   /** How to handle tag nesting errors */
   tagNesting?: TagNestingErrorHandlingMode;
-};
+}
 
 /**
  * Configuration options for the HTML schema enforcer.
@@ -128,7 +127,7 @@ export type SchemaOptions = ReadonlyDeep<{
  * };
  * ```
  */
-export type SchemaState = {
+export interface SchemaState {
   /** Current nesting depth from the root element */
   rootNesting: number;
   /** Array tracking the nesting count for each tag type */
@@ -138,4 +137,4 @@ export type SchemaState = {
     /** Current nesting depth for this specific tag */
     value: number;
   }[];
-};
+}
