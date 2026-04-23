@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "domsanitize",
+  "name": "domschema",
   "version": "1.0.0",
   "description": "Declarative schema-based HTML attribute validation. Define which tags, attributes, and values are allowed and enforce them.",
   "keywords": [
@@ -15,13 +15,13 @@
     "schema",
     "validation"
   ],
-  "homepage": "https://github.com/RampantDespair/domsanitize#readme",
+  "homepage": "https://github.com/RampantDespair/domschema#readme",
   "bugs": {
-    "url": "https://github.com/RampantDespair/domsanitize/issues"
+    "url": "https://github.com/RampantDespair/domschema/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RampantDespair/domsanitize.git"
+    "url": "git+https://github.com/RampantDespair/domschema.git"
   },
   "license": "MIT",
   "author": "RampantDespair",

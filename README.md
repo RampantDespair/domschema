@@ -1,10 +1,10 @@
-# domsanitize
+# domschema
 
 Declarative schema-based HTML attribute validation. Define which tags, attributes, and values are allowed and enforce them.
 
 ## Not a sanitizer replacement
 
-domsanitize is **not** a sanitizer and does not aim to replace tools like [DOMPurify](https://github.com/cure53/DOMPurify). DOMPurify is excellent at removing malicious content and protecting against XSS. domsanitize solves a different problem: **structural conformance**. Use them together, DOMPurify to sanitize, domsanitize to enforce your schema.
+domschema is **not** a sanitizer and does not aim to replace tools like [DOMPurify](https://github.com/cure53/DOMPurify). DOMPurify is excellent at removing malicious content and protecting against XSS. domschema solves a different problem: **structural conformance**. Use them together, DOMPurify to sanitize, domschema to enforce your schema.
 
 ## Features
 
@@ -150,10 +150,10 @@ HTML comments are stripped by default. Pass `preserveComments: true` to retain t
 
 ### Built-in Default Rules
 
-domsanitize ships with ready-made rules for all standard HTML global attributes, shared attributes, and common value types (integers, floats, URLs, MIME types, BCP 47 language tags, dates, and more) so you don't have to write them from scratch.
+domschema ships with ready-made rules for all standard HTML global attributes, shared attributes, and common value types (integers, floats, URLs, MIME types, BCP 47 language tags, dates, and more) so you don't have to write them from scratch.
 
 ```typescript
-import { defaultGlobalAttributes, defaultOtherAttributes } from "domsanitize/defaults";
+import { defaultGlobalAttributes, defaultOtherAttributes } from "domschema/defaults";
 
 tags: {
   a: {
@@ -172,7 +172,7 @@ tags: {
 The built-in URL rule builder lets you restrict URLs to specific protocols and/or hosts, with optional support for relative paths.
 
 ```typescript
-import { buildAllowedUrlRegex } from "domsanitize/utils/url";
+import { buildAllowedUrlRegex } from "domschema/utils/url";
 
 // Only allow https links to your own domain, plus relative paths
 const value = buildAllowedUrlRegex(["https"], ["example.com"], true);
@@ -181,7 +181,7 @@ const value = buildAllowedUrlRegex(["https"], ["example.com"], true);
 ## Installation
 
 ```bash
-npm install domsanitize
+npm install domschema
 ```
 
 ## Quick Start
@@ -189,7 +189,7 @@ npm install domsanitize
 In this example, a `<div>` with an unknown `onclick` attribute and a `<p>` with disallowed class values are both cleaned up according to the schema.
 
 ```typescript
-import { enforceHtml } from "domsanitize";
+import { enforceHtml } from "domschema";
 
 const html = `
   <div class="container wrapper" onclick="evil()">
